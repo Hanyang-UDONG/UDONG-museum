@@ -4,6 +4,7 @@ const initialState = {
   isAuthenticated: false,
   token: "",
   user: {},
+  location: {},
 };
 export const userSlice = createSlice({
   name: "user",
@@ -17,9 +18,10 @@ export const userSlice = createSlice({
       state.user = {};
     },
     me: (state, action) => {
+      // my information
       state.user = action.payload;
     },
-    setLocation: (state, action) => {
+    location: (state, action) => {
       state.location = action.payload;
     },
   },

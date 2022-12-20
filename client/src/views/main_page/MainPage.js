@@ -1,18 +1,46 @@
-import { useSelector } from "react-redux";
-import styled from "styled-components";
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import styled, { css } from "styled-components";
+import { exhibitionActions } from "../../store/exhibitionSlice";
 import FollowingExhibitions from "./components/FollowingExhibitions";
 import KakaoMap from "./components/KakaoMap";
+import MapModal from "./components/MapModal";
 import NearExhibitions from "./components/NearExhibitions";
 
 function MainPage() {
+  const dispatch = useDispatch();
   const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
+  const selectedEID = useSelector((state) => state.exhibition.selectedEID);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [pointer, setPointer] = useState({});
 
+  const onMapClick = (e) => {
+    if (!isModalOpen && selectedEID !== "") {
+      setPointer({
+        x: e.clientX,
+        y: e.clientY,
+      });
+      setIsModalOpen(true);
+    } else if (isModalOpen) {
+      setIsModalOpen(false);
+      dispatch(exhibitionActions.selectedEID(""));
+    }
+  };
   return (
     <MainPageContainer>
       <MainPageTitle>👀 마음에 드는 전시회를 찾아보세요</MainPageTitle>
       <ContentContainer>
-        <MapContainer>
-          <KakaoMap />
+        {isModalOpen && (
+          <MapModal
+            isOpen={isModalOpen}
+            setIsOpen={setIsModalOpen}
+            pointer={pointer}
+          />
+        )}
+
+        <MapContainer onClick={onMapClick}>
+          <MapCover isCovered={isModalOpen}></MapCover>
+          <KakaoMap setIsModalOpen={setIsModalOpen} />
         </MapContainer>
         <SideMenuContainer>
           <SideMenu>
@@ -43,18 +71,17 @@ const SideMenuContent = styled.div`
   color: white;
   height: 230px;
   margin-top: 10px;
+  padding-top: 15px;
   border-radius: 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
 `;
 const SideMenuTitle = styled.div`
-  color: ${(props) => props.theme.colors.description}
+  color: ${(props) => props.theme.colors.description};
   font-size: ${(props) => props.theme.fontSizes.subtitle};
 `;
 const SideMenu = styled.div`
-  /* height: 48%; */
   border-radius: 10px;
 `;
 const SideMenuContainer = styled.div`
@@ -65,9 +92,25 @@ const SideMenuContainer = styled.div`
   flex-direction: column;
   justify-content: space-between;
 `;
+const MapCover = styled.div`
+  display: none;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: black;
+  opacity: 0.4;
+  z-index: 288;
+  ${(props) =>
+    props.isCovered &&
+    css`
+      display: block;
+    `}
+  &:hover {
+    cursor: pointer;
+  }
+`;
 const MapContainer = styled.div`
   height: 100%;
-  /* width: 70%; */
   background-color: white;
   flex-grow: 2.5;
   flex-basis: 60%;
@@ -75,6 +118,7 @@ const MapContainer = styled.div`
   flex-shrink: 0;
   border-radius: 10px;
   overflow: hidden;
+  position: relative;
 `;
 const MainPageTitle = styled.div`
   margin-top: 30px;
@@ -85,6 +129,7 @@ const ContentContainer = styled.div`
   display: flex;
   margin-top: 20px;
   height: 550px;
+  /* position: static; */
 `;
 const MainPageContainer = styled.div`
   width: 100%;

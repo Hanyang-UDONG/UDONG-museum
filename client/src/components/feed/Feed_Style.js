@@ -5,6 +5,10 @@ export const FeedContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
+  &::after {
+    /* content: ""; */
+    flex: auto;
+  }
 `;
 
 export const PhotoContainer = styled.div`
@@ -17,6 +21,14 @@ export const PhotoContainer = styled.div`
   &:hover {
     cursor: pointer;
   }
+  ${(props) =>
+    props.filling &&
+    css`
+      opacity: 0;
+      &:hover {
+        cursor: default;
+      }
+    `}
 `;
 export const PhotoCover = styled.div`
   width: 100%;

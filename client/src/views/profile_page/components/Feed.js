@@ -25,6 +25,9 @@ function Feed({ photos }) {
             <S.PhotoImg>{photo.title}</S.PhotoImg>
           </S.PhotoContainer>
         ))}
+        {photos.length % 3 === 2 && (
+          <S.PhotoContainer filling={true}></S.PhotoContainer>
+        )}
         {isModalOpen && <Cover></Cover>}
         {isModalOpen && (
           <PhotoModal

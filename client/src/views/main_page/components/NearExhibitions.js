@@ -3,63 +3,94 @@ import { useQuery } from "react-query";
 import { useDispatch, useSelector } from "react-redux";
 import { GET_NEAR } from "../../../api/exhibitionAPI";
 import ExhibitionCard from "./ExhibitionCard";
-import { userActions } from "../../../store/userSlice";
 import { exhibitionActions } from "../../../store/exhibitionSlice";
+import { mapActions } from "../../../store/mapSlice";
+import { userActions } from "../../../store/userSlice";
 
 function NearExhibitions() {
   const dispatch = useDispatch();
   const [exhibitions, setExhibitions] = useState([]);
-  const [location, setLocation] = useState({ latitude: "", longitude: "" });
+  const mapLocation = useSelector((state) => state.map.location);
 
-  const target_area = {
-    maxLatitude: location.latitude + 0.01893173974,
-    minLatitude: location.latitude - 0.01893173974,
-    maxLongitude: location.longitude + 0.0398315272,
-    minLongitude: location.longitude - 0.0398315272,
-  };
-  // const location = useSelector((state) => state.user.location);
-  // const location = {
-  //   latitude: 37.557415823247524,
-  //   longitude: 127.04456318113543,
-  // };
-  // latitude, longitude
-  // 고덕역 37.554229535691064, 127.15349448125242
-  // 둔촌동역 37.52879722542752, 127.13646109077611
-  // 굽은다리역 37.54541334690777, 127.14265848973925
-  // 광나루역 37.54568006861791, 127.10274798678142
+  let target_area;
+
   const { data, isLoading, isFetched, refetch } = useQuery(
     ["get_near", target_area],
     () => GET_NEAR(target_area),
     {
+      enabled: false,
       onSuccess: (data) => {
         setExhibitions(data.data.exhibitions);
         dispatch(exhibitionActions.near(data.data.exhibitions));
       },
     }
   );
+  const makeTargetArea = (latitude, longitude) => {
+    target_area = {
+      maxLatitude: latitude + 0.01893173974,
+      minLatitude: latitude - 0.01893173974,
+      maxLongitude: longitude + 0.0398315272,
+      minLongitude: longitude - 0.0398315272,
+    };
+    return target_area;
+  };
+
   useEffect(() => {
-    navigator.geolocation.getCurrentPosition((position) => {
-      const latitude = position.coords.latitude;
-      const longitude = position.coords.longitude;
-      const crnt_location = {
-        latitude,
-        longitude,
-      };
-      setLocation(crnt_location);
-      dispatch(userActions.setLocation(crnt_location));
-    });
-  }, []);
+    let latitude;
+    let longitude;
+    if (Object.keys(mapLocation).length == 0) {
+      let locationPromise = new Promise(function (resolve, reject) {
+        navigator.geolocation.getCurrentPosition((position) => {
+          latitude = position.coords.latitude;
+          longitude = position.coords.longitude;
+          resolve({ latitude, longitude });
+        });
+      });
+
+      locationPromise.then(function ({ latitude, longitude }) {
+        target_area = makeTargetArea(latitude, longitude);
+        refetch(target_area);
+        dispatch(userActions.location({ latitude, longitude }));
+      });
+    } else {
+      target_area = makeTargetArea(mapLocation.latitude, mapLocation.longitude);
+      refetch(target_area);
+    }
+    // let locationPromise = new Promise(function (resolve, reject) {
+    //   navigator.geolocation.getCurrentPosition((position) => {
+    //     latitude = position.coords.latitude;
+    //     longitude = position.coords.longitude;
+    //     resolve({ latitude, longitude });
+    //   });
+    // });
+
+    // locationPromise.then(function ({ latitude, longitude }) {
+    //   target_area = makeTargetArea(latitude, longitude);
+    //   refetch(target_area);
+    //   dispatch(userActions.location({ latitude, longitude }));
+    // });
+  }, [mapLocation]);
 
   return (
     <>
-      {exhibitions?.length !== 0 ? (
-        <>
-          {exhibitions.map((exhibition, idx) => (
-            <ExhibitionCard exhibition={exhibition} key={idx} />
-          ))}
-        </>
+      {isLoading ? (
+        <>Loading...</>
       ) : (
-        <>No exhibition nearby!</>
+        <>
+          {exhibitions?.length !== 0 ? (
+            <>
+              {exhibitions.map((exhibition, idx) => (
+                <ExhibitionCard
+                  isNear={true}
+                  exhibition={exhibition}
+                  key={idx}
+                />
+              ))}
+            </>
+          ) : (
+            <>No exhibition nearby!</>
+          )}
+        </>
       )}
     </>
   );

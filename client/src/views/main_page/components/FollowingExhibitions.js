@@ -5,7 +5,7 @@ import ExhibitionCard from "./ExhibitionCard";
 
 function FollowingExhibitions() {
   const [exhibitions, setExhibitions] = useState([]);
-  const { data } = useQuery("get_recent", GET_RECENT, {
+  const { data, isLoading } = useQuery("get_recent", GET_RECENT, {
     onSuccess: (data) => {
       setExhibitions(data.data.exhibitions);
     },
@@ -13,14 +13,24 @@ function FollowingExhibitions() {
 
   return (
     <>
-      {exhibitions?.length !== 0 ? (
-        <>
-          {exhibitions?.map((exhibition, idx) => (
-            <ExhibitionCard exhibition={exhibition} key={idx} />
-          ))}
-        </>
+      {isLoading ? (
+        <>Loading...</>
       ) : (
-        <>start following others!</>
+        <>
+          {exhibitions?.length !== 0 ? (
+            <>
+              {exhibitions?.map((exhibition, idx) => (
+                <ExhibitionCard
+                  isNear={false}
+                  exhibition={exhibition}
+                  key={idx}
+                />
+              ))}
+            </>
+          ) : (
+            <>start following others!</>
+          )}
+        </>
       )}
     </>
   );

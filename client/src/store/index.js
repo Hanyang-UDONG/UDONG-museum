@@ -4,11 +4,13 @@ import storage from "redux-persist/lib/storage";
 import { persistReducer } from "redux-persist";
 import { profileSlice } from "./profileSlice";
 import { exhibitionSlice } from "./exhibitionSlice";
+import { mapSlice } from "./mapSlice";
 
 const rootReducer = combineReducers({
   user: userSlice.reducer,
   profile: profileSlice.reducer,
   exhibition: exhibitionSlice.reducer,
+  map: mapSlice.reducer,
 });
 
 const persistConfig = {

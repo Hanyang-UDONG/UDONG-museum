@@ -39,8 +39,30 @@ const CREATE_EXHIBITION = async (data) => {
     };
   }
 };
-const deleteExhibition = () => {};
-const editExhibition = () => {};
+const DELETE_EXHIBITION = async (eid) => {
+  try {
+    const response = await axios.post(`/api/exhibitions/${eid}/delete`);
+    return response;
+  } catch (err) {
+    console.log(err);
+    return {
+      ok: false,
+      message: err.message,
+    };
+  }
+};
+const EDIT_EXHIBITION = async ({ eid, data }) => {
+  try {
+    const response = await axios.post(`/api/exhibitions/${eid}/edit`, data);
+    return response;
+  } catch (err) {
+    console.log(err);
+    return {
+      ok: false,
+      message: err.message,
+    };
+  }
+};
 const GET_EXHIBITION = async (eid) => {
   try {
     const response = await axios.get(`/api/exhibitions/${eid}`);
@@ -58,7 +80,7 @@ export {
   GET_NEAR,
   GET_RECENT,
   CREATE_EXHIBITION,
-  deleteExhibition,
-  editExhibition,
+  DELETE_EXHIBITION,
+  EDIT_EXHIBITION,
   GET_EXHIBITION,
 };
