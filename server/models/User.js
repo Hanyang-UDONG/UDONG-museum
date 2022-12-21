@@ -39,10 +39,12 @@ const userSchema = mongoose.Schema({
     token:{
         type: String
     },
+    
     tokenExp: {
         type: Number
     }
 })
+
 
 userSchema.pre('save', function(next) {
     var user = this;
