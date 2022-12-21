@@ -5,24 +5,30 @@ const { Exhibition } = require('../models/Exhibition');
 const { auth } = require('../middleware/auth');
 const url = require('url');
 
+
 //전시회 등록
 router.post('/register', auth, (req,res)=>{
     const exhibition = new Exhibition(req.body)
     exhibition.user = req.user.id
 
 
-  exhibition.save((err, exhibition) => {
-    if (err) return res.status(400).send(err);
-
-    return res.status(200).json({
-      registerExhibitionSuccess: true,
-      exhibition: exhibition,
-    });
-  });
-});
 
 //유저 전시회 리스트업
+router.get('/:userId/listUp',(req,res)=>{
+    Exhibition.find({user : req.params.userId}, (err,exhibitions)=>{
+        if(err){
+            console.log('list up exhibition error')
+            return res.status(400).send(err);
+        }
+        return res.status(200).json({
+            listUpExhibitionSuccess: true,
+            exhibitions: exhibitions
+        })
+    });
+})
 
+
+//유저 근처 전시회 리스트업
 router.get('/near',(req,res)=>{
     
     const queryData = url.parse(req.url, true).query;
