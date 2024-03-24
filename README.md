@@ -29,7 +29,7 @@ UDONG EDONG(우동이동)은 우리동네 이웃동네의 약칭이다. <br/><br
 
 - Frontend : ````React````<br/>
 - State Management : ````Redux````<br/>
-- Backend : ````NodeJS````<br/>
+- Backend : ````Exoress````<br/>
 - Database : ````MongoDB````<br/>
 - Image Storage : ````AWS S3````<br/>
 
